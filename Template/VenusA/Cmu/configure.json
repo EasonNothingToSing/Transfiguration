@@ -1,0 +1,36 @@
+{
+  "Target_Name": "VenusA",
+  "Item": {
+    "Device": {
+      "Uart0": {
+        "name": "Uart0",
+        "mudule": "",
+        "gate_reg": "",
+        "gate_def": 0,
+        "src_reg": "",
+        "src_choice": [],
+        "n_reg": "",
+        "n_def": 1,
+        "n_mask": "0x3ff",
+        "m_reg": "",
+        "m_def": 1,
+        "m_mask": "0x3ff",
+        "ld_reg": "",
+        "clock_born": ""
+      },
+      "Uart1": {
+        "mudule": "",
+        "":""
+      }
+    },
+    "Core": {
+
+    },
+    "PLL": {
+
+    },
+    "VOC": {
+
+    }
+  }
+}

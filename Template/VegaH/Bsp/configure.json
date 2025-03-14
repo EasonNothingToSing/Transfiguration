@@ -1,0 +1,25 @@
+{
+  "Target_Name": "vegah_ap.h",
+  "Item": {
+    "driver_macro": {
+      "excel_name": "VegaT_SoC_Memory_Mapping.xlsx",
+      "sheet": "Peripherals",
+      "excel_module": "Get_Excel_Data",
+      "module": "Include_File_Generate_Macro"
+    },
+    "irq_macro": {
+      "excel_name": "VegaT_SoC_Memory_Mapping.xlsx",
+      "sheet": "Interrupt_vector",
+      "module": ""
+    },
+    "handshake_macro":{
+      "excel_name": "VegaT_SoC_Memory_Mapping.xlsx",
+      "sheet": "HS",
+      "module": ""
+    },
+    "section_macro":{
+      "section": ["ram", "ram0", "ram1"],
+      "module": ""
+    }
+  }
+}

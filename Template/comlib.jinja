@@ -1,0 +1,31 @@
+{% macro H_File_Header_Macro_Filter_Start(header_name) -%}
+{%- if header_name -%}
+#ifndef INCLUDE_{{header_name | upper | replace('.', '_') }}_
+#define INCLUDE_{{header_name | upper | replace('.', '_') }}_
+{%- endif -%}
+{%- endmacro %}
+
+{% macro H_File_Header_Macro_Filter_End(header_name) -%}
+{%- if header_name -%}
+#endif /* INCLUDE_{{header_name | upper | replace('.', '_') }}_ */
+{%- endif -%}
+{%- endmacro %}
+
+{# Depending parameter 'f_name' generate include format, such as f_name = uart ----> #include "uart_reg.h" #}
+{% macro Include_File_Generate_Macro(f_name)%}
+#include "{{ f_name }}_reg.h"
+{%- endmacro %}
+
+{# action macro map, depending string value to decide which action to do#}
+{% set action_macro_map = {'Include_File_Generate_Macro': Include_File_Generate_Macro} %}
+
+{# Generate include file macro #}
+{% macro Include_File_Bundle_Filter(handler) -%}
+{%- if handler.excel_name and handler.sheet and handler.module -%}
+
+{% for item in handler.excel_data -%}
+{{ action_macro_map[handler.module](item) }}
+{%- endfor %}
+
+{%- endif -%}
+{%- endmacro %}

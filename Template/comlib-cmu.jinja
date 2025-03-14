@@ -1,0 +1,204 @@
+{% macro device_peri_extend(base, bit_filed, peri_id) -%}
+{%- if peri_id != ''-%}
+{{base}}->REG_PERI_CLK_CFG{{peri_id | int}}.bit.{{bit_filed}}
+{%- else -%}
+{{bit_filed}}
+{%- endif -%}
+{%- endmacro%}
+
+{# Generate device expend loop macro #}
+{#                START              #}
+{#####################################}
+{#####################################}
+{#####################################}
+{# DEVICE ENABLE MACRO #}
+{% macro device_enable_macro(reg, name) -%}
+{% if reg is not none%}
+#define __HAL_CRM_{{name | upper}}_ENABLE() \
+do{ \
+    {{reg}} = 0x1; \
+} while(0)
+{%- endif -%}
+{%- endmacro %}
+
+{# DEVICE ENABLE MACRO #}
+{% macro device_enable_macro_call(name) -%}
+__HAL_CRM_{{name | upper}}_ENABLE()
+{%- endmacro %}
+
+{# DEVICE DISABLE MACRO #}
+{% macro device_disable_macro(reg, name) -%}
+{% if reg is not none%}
+#define __HAL_CRM_{{name | upper}}_DISABLE() \
+do{ \
+    {{reg}} = 0x0; \
+} while(0)
+{%- endif -%}
+{%- endmacro %}
+
+{# DEVICE DISABLE MACRO #}
+{% macro device_disable_macro_call(name) -%}
+__HAL_CRM_{{name | upper}}_DISABLE()
+{%- endmacro %}
+
+{# DEVICE ENABLED MACRO#}
+{% macro device_enabled_macro(reg, name) -%}
+{% if reg is not none%}
+inline static uint8_t HAL_CRM_{{name | title}}IsEnabled(){
+    return {{reg}};
+}
+{%- endif -%}
+{%- endmacro %}
+
+{# DEVICE ENABLED MACRO#}
+{% macro device_enabled_macro_call(name) -%}
+HAL_CRM_{{name | title}}IsEnabled()
+{%- endmacro %}
+
+{# DEVICE DIVIDER SETTING #}
+{% macro device_div_setting_decalre_macro(name, n_reg, m_reg) -%}
+{# Check if both n and m are empty (None) #}
+{% if n_reg is none and m_reg is none -%}
+{# If both n and m are empty, do not generate the function #}
+{% else -%}
+{# If either n or m has a value, generate the function #}
+int32_t HAL_CRM_Set{{name | title}}ClkDiv(
+    {# Generate div_n parameter if n is not empty #}
+    {%- if n_reg is not none %}uint32_t div_n{% endif -%}
+    {# Add a comma if both n and m are not empty #}
+    {%- if n_reg is not none and m_reg is not none %}, {% endif -%}
+    {# Generate div_m parameter if m is not empty #}
+    {%- if m_reg is not none %}uint32_t div_m{% endif -%}
+);
+{% endif %}
+{% endmacro %}
+
+{# DEVICE DIVIDER SETTING #}
+{% macro device_div_setting_define_macro(name, n_reg, n_max, m_reg, m_max, ld_reg) -%}
+{# Check if both n and m are empty (None) #}
+{% if n_reg is none and m_reg is none -%}
+    {# If both n and m are empty, do not generate the function #}
+{% else -%}
+{# If either n or m has a value, generate the function #}
+int32_t HAL_CRM_Set{{name | title}}ClkDiv(
+    {# Generate div_n parameter if n is not empty #}
+    {%- if n_reg is not none %}uint32_t div_n{% endif -%}
+    {# Add a comma if both n and m are not empty #}
+    {%- if n_reg is not none and m_reg is not none %}, {% endif -%}
+    {# Generate div_m parameter if m is not empty #}
+    {%- if m_reg is not none %}uint32_t div_m{% endif -%}
+){
+    {{ld_reg}} = 0x0;
+    {%- if n_reg is not none %}
+    if (div_n > {{n_max}}){
+        return CSK_DRIVER_ERROR_PARAMETER;
+    }
+    {{n_reg}} = div_n;
+    {% endif %}
+    {%- if m_reg is not none %}
+    if (div_m > {{m_max}}){
+        return CSK_DRIVER_ERROR_PARAMETER;
+    }
+    {{m_reg}} = div_m-1;
+    {% endif %}
+
+    {{ld_reg}} = 0x1;
+    return CSK_DRIVER_OK;
+}
+    {% endif %}
+{% endmacro %}
+ 
+
+{# DEVICE SOURCE SETTING #}
+{% macro device_src_setting_decalre_macro(name)%}
+int32_t HAL_CRM_Set{{name | title}}ClkSrc(uint32_t src);
+{% endmacro %}
+
+{# DEVICE SOURCE SETTING #}
+{% macro device_src_setting_define_macro(name, src_reg, choice)%}
+int32_t HAL_CRM_Set{{name | title}}ClkSrc(uint32_t src){
+    {% for item in choice -%}
+    if (src == {{item}}){
+        {{src_reg}} = {{loop.index0}};
+    }
+    {%- endfor %}
+    return CSK_DRIVER_OK;
+}
+{% endmacro %}
+
+{# DEVICE GET CONFIG #}
+{% macro device_get_config_decalre_macro(name, n_reg, m_reg, src_reg, clock_born)%}
+inline void HAL_CRM_Get{{name | capitalize}}ClkConfig(clock_src_name_t *src, {% if n_reg is not none %}uint32_t *div_n,{% endif %} {% if m_reg is not none %}uint32_t *div_m{% endif %}){
+    {% if n_reg -%}
+    *div_n = {{n_reg}};
+    {%- else %}
+    *div_n = 1;
+    {%- endif -%}
+    {%- if m_reg %}
+    *div_m = {{m_reg}}+1;
+    {%- else %}
+    *div_m = 1;
+    {%- endif -%}
+    {%- if src_reg %}
+    *src = {{src_reg}};
+    {% else %}
+    *src = {{clock_born}};
+    {%- endif %}
+}
+{% endmacro %}
+
+{# DEVICE GET FREQUENCE #}
+{% macro device_get_frequence_decalre_macro(name, clock_born, src_reg)%}
+{%- if clock_born or src_reg -%}
+uint32_t HAL_CRM_Get{{name | capitalize}}Freq(void);
+{%- endif -%}
+{% endmacro %}
+
+{# DEVICE GET FREQUENCE #}
+{% macro device_get_frequence_define_macro(name, n_reg, m_reg, src_reg, clock_born)%}
+uint32_t HAL_CRM_Get{{name | capitalize}}Freq(void){
+    uint32_t freq = 0;
+    {% if n_reg is not none %}
+    uint32_t div_n = 1;
+    {% endif %}
+    {% if m_reg is not none %}
+    uint32_t div_m = 1;
+    {% endif %}
+    clock_src_name_t src = 0;
+    if (!{{device_enabled_macro_call(name)}}){
+        return 0;
+    }
+
+    HAL_CRM_Get{{name | capitalize}}ClkConfig(&src{%- if n_reg is not none or m_reg is not none %}{% if n_reg is not none %}, &div_n{% endif %}{% if m_reg is not none %}, &div_m{% endif %}{% endif %});
+
+    freq = HAL_CRM_GetSrcFreq(src);
+
+    return freq*div_n/div_m;
+}
+{% endmacro %}
+
+{# DEVICE EXPEND LOOP #}
+{% macro device_header_expend_loop(device_list) -%}
+{% for device in device_list -%}
+{{device_enable_macro(device.gate_reg, device.name)}}
+{{device_disable_macro(device.gate_reg, device.name)}}
+{{device_enabled_macro(device.gate_reg, device.name)}}
+{{device_src_setting_decalre_macro(device.name)}}
+{{device_div_setting_decalre_macro(device.name, device.n_reg, device.m_reg)}}
+{{device_get_config_decalre_macro(device.name, device.n_reg, device.m_reg, device.src_reg, device.clock_born)}}
+{{device_get_frequence_decalre_macro(device.name, device.clock_born, device.src_reg)}}
+{% endfor %}
+{%- endmacro%}
+
+{% macro device_source_expend_loop(device_list) -%}
+{% for device in device_list -%}
+{{device_div_setting_define_macro(device.name, device.n_reg, device.n_max, device.m_reg, device.m_max, device.ld_reg)}}
+{{device_src_setting_define_macro(device.name, device.src_reg, device.src_choice)}}
+{{device_get_frequence_define_macro(device.name, device.n_reg, device.m_reg, device.src_reg, device.clock_born)}}
+{% endfor %}
+{%- endmacro%}
+
+{#####################################}
+{#####################################}
+{#####################################}
+{#                END                #}
