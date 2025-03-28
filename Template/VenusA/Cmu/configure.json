@@ -1,22 +1,26 @@
 {
   "Target_Name": "VenusA",
   "Item": {
+    "Source": {
+
+    },
     "Device": {
       "Uart0": {
-        "name": "Uart0",
-        "mudule": "",
-        "gate_reg": "",
-        "gate_def": 0,
-        "src_reg": "",
-        "src_choice": [],
-        "n_reg": "",
+        "base":"IP_SYS",
+        "num":1,
+        "mudule": null,
+        "gate_reg": null,
+        "gate_def": null,
+        "src_reg": "SEL_UART0_CLK",
+        "src_choice": ["CRM_IpSrcXtalClk", "CRM_IpSrcCoreClk"],
+        "n_reg": "DIV_UART0_CLK_N",
         "n_def": 1,
         "n_mask": "0x3ff",
-        "m_reg": "",
+        "m_reg": "DIV_UART0_CLK_M",
         "m_def": 1,
         "m_mask": "0x3ff",
-        "ld_reg": "",
-        "clock_born": ""
+        "ld_reg": "DIV_UART0_CLK_LD",
+        "clock_born": null
       },
       "Uart1": {
         "mudule": "",
@@ -27,7 +31,13 @@
 
     },
     "PLL": {
-
+      "SYSPLL":{
+        "usb":[{}],
+        "core":[{}],
+        "flash":[{}],
+        "psram":[{}],
+        "peri":[{}]
+      }
     },
     "VOC": {
 

@@ -1,3 +1,5 @@
+{# VCO ---> PLL ----> SUBPLL ----> DEVICE #}
+
 {% macro device_peri_extend(base, bit_filed, peri_id) -%}
 {%- if peri_id != ''-%}
 {{base}}->REG_PERI_CLK_CFG{{peri_id | int}}.bit.{{bit_filed}}
@@ -198,6 +200,59 @@ uint32_t HAL_CRM_Get{{name | capitalize}}Freq(void){
 {% endfor %}
 {%- endmacro%}
 
+{#####################################}
+{#####################################}
+{#####################################}
+{#                END                #}
+
+
+{# Generate source expend loop macro #}
+{#                START              #}
+{#####################################}
+{#####################################}
+{#####################################}
+{% macro source_header_src_name_decalre_macro(src_name_list) -%}
+typedef enum _clock_src_name {
+    CRM_IpSrcInvalide              = 0x0U,
+{% for src_name in src_name_list -%}
+    CRM_IpSrc{{src_name}}          = {{loop.index}}U,
+{% endfor %}
+} clock_src_name_t;
+{%- endmacro%}
+
+{% macro source_header_pll_para_decalre_macro(pll_name, para_list) -%}
+typdef enum _clock_src_{{pll_name}}_div {
+{% for para in para_list -%}
+    CRM_Ip{{pll_name | capitalize}}_Div{{para.div}} = {{para.value}}U,
+{% endfor %}
+} clock_src_{{pll_name}}_div;
+{%- endmacro%}
+
+{% macro source_headler_pll_para_macro_call(pll_name) -%}
+clock_src_{{pll_name}}_div
+{%- endmacro%}
+
+
+{#####################################}
+{#####################################}
+{#####################################}
+{#                END                #}
+
+{#   Generate TOP expend loop macro  #}
+{#                START              #}
+{#####################################}
+{#####################################}
+{#####################################}
+{% macro pll_header_decalre_macro(base) -%}
+int32_t {{base | upper}}_Init(void);
+{%- endmacro %}
+
+{% macro subpll_header_decalre_macro(base, pll_name) -%}
+int32_t {{base | upper}}_Init{{pll_name | title}}({{source_headler_pll_para_macro_call(pll_name)}} div);
+{%- endmacro %}
+
+{% macro pll_header_expand_loop_macro(pll_list)%}
+{%- endmacro %}
 {#####################################}
 {#####################################}
 {#####################################}

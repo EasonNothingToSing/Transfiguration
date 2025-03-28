@@ -1,0 +1,28 @@
+{# Depending parameter 'f_name' generate include format, such as f_name = uart ----> #include "uart_reg.h" #}
+{% macro Include_File_Generate_Macro(f_name)%}
+#include "{{ f_name }}_reg.h"
+{%- endmacro %}
+
+{% macro Include_File_Expand_Macro(device_list) -%}
+{% for device in device_list -%}
+{{Include_File_Generate_Macro(device)}}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro IP_Define_Macro(device_name, module_name) -%}
+#define IP_{{device_name | upper}} {{" " * (50 - (device_name | length))}} (({{module_name | upper}}_RegDef *) {{device_name | upper}}_BASE)
+{%- endmacro %}
+
+{% macro IP_Define_Expand_Macro(device_list) -%}
+{% for device in device_list %}
+{{IP_Define_Macro(device[1], device[2])}}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro Device_Address_Define_Macro(device_name, address) -%}
+#define {{device_name | upper}}_BASE {{" " * (50 - (device_name | length))}} {{address}}
+{%- endmacro %}
+
+{% macro Device_IRQ_Define_Macro(device_name, irq_num) -%}
+#define IRQ_{{device_name | upper}}_VECTOR {{" " * (50 - (device_name | length))}} {{irq_num}}
+{%- endmacro %}

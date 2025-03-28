@@ -11,11 +11,6 @@
 {%- endif -%}
 {%- endmacro %}
 
-{# Depending parameter 'f_name' generate include format, such as f_name = uart ----> #include "uart_reg.h" #}
-{% macro Include_File_Generate_Macro(f_name)%}
-#include "{{ f_name }}_reg.h"
-{%- endmacro %}
-
 {# action macro map, depending string value to decide which action to do#}
 {% set action_macro_map = {'Include_File_Generate_Macro': Include_File_Generate_Macro} %}
 

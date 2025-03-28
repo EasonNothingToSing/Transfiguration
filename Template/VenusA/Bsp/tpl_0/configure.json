@@ -1,0 +1,11 @@
+{
+  "Target_Name": "venusa_ap.h",
+  "Chip_Name": "VenusA",
+  "Core_Name": "N300",
+  "Item": {
+    "module_name": "$func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', 'Sheet name'))",
+    "device_name": "$func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', ['Module', 'Sheet name', 'Address Start'])",
+    "cmn_dma_hs": "$func:Get_Excel_Data_Col('VenusA_SoC_Memory_Mapping.xlsx', 'Dma_hs', [1, 2, 3, 4])",
+    "gp_dma2d_hs": "$func:Get_Excel_Data_Col_Skip_Row('VenusA_SoC_Memory_Mapping.xlsx', 'Dma_hs', 15, [1, 2, 3, 4])"
+  }
+}
