@@ -1,6 +1,8 @@
 from Transpell import *
+from global_env import *
 
 
 if __name__ == "__main__":
-    tmake = Transmake("./Template/VenusA/Bsp")
-    tmake.tmake(tmake.scan_dir())
+    global_var_init()
+    tmake = Transmake("./Template/VenusA")
+    tmake.tmake()

@@ -24,3 +24,5 @@
 
 {%- endif -%}
 {%- endmacro %}
+
+{% macro HexAddress_Format(address) %}{{ address | replace("_", "") }}{% endmacro %}

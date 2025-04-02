@@ -7,7 +7,7 @@
 {%- endfor %}
 
 {% for device in Input.Item.device_name %}
-{{bsp.IP_Define_Macro(device[1], device[2])}}
+{{bsp.IP_Define_Macro(device[0], device[1])}}
 {%- endfor %}
 
 {{cmn.H_File_Header_Macro_Filter_End(Input.Target_Name)}}

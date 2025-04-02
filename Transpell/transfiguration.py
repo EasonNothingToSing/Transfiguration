@@ -1,15 +1,20 @@
 import json
-import jinja2
+from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
 import pandas
 import re
 import os
 
+from global_env import *
+
 
 class Transfiguration:
-    def __init__(self, configure: str, database: str) -> object:
+    _TEMPLATE_PATH = os.path.join(os.getcwd(), "Template")
 
-        self._configure = configure
-        self._database = os.path.abspath(database)
+    def __init__(self):
+        self._configure = None
+        self._target = None
+        self._database = None
         self._output = None
         self._available_funcs = {
             "Get_Excel_Data": self._get_excel_cols_data,
@@ -17,19 +22,28 @@ class Transfiguration:
             "Get_Excel_Data_Col_Skip_Row": self._get_excel_cols_data3,
             "Deduplicate_Modules_Name": self._deduplicate_modules_name
         }
+        self._env = Environment(loader=FileSystemLoader([Transfiguration._TEMPLATE_PATH, os.getcwd()]))
 
-    def render(self):
-        self._output = self._traverse_recursive(self._configure)
+    def process(self, configure: str):
+        self._configure = configure
+        with open(self._configure, "r", encoding="utf-8") as f:
+            configure_json = json.load(f)
+            self._target = configure_json['Target_Name']
+            self._database_filter(configure_json['Datebase'])
+            # preprocess
+            self._output = self._traverse_recursive(configure_json)
 
-    def get_result(self):
-        return self._output
+        for _target in self._target:
+            self._output["Target_Name"] = _target
+            t_path = Path(os.path.normpath(os.path.join(os.path.dirname(self._configure), _target))).as_posix()
+            template = self._env.get_template(t_path)
+            print(template.render(Input=self._output))
 
-    def _traverse_configure_cmu(self, configure):
-        self._traverse_recursive(configure)
+    def _database_filter(self, database : str):
+        database_string = ""
+        if database == "~/database":
+            self._database = os.path.join(Transfiguration._TEMPLATE_PATH, "database")
 
-    def _traverse_configure_bsp_header(self, configure):
-        self._traverse_recursive(configure)
-        
     def _traverse_recursive(self, config):
         if isinstance(config, dict):
             return {k: self._traverse_recursive(v) for k, v in config.items()}
@@ -83,6 +97,10 @@ class Transfiguration:
                 col.append(self.__locate_sheet(excel, sheet, colname))
 
         d = pandas.read_excel(os.path.join(self._database, excel), sheet_name=sheet, usecols=col, header=0)
+
+        d = d.iloc[:, [sorted(col).index(i) for i in col]]
+        d = d.dropna()
+
         return d.values.tolist()
     
     def _get_excel_cols_data2(self, excel: str, sheet: str, cols):

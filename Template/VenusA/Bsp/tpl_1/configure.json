@@ -1,9 +1,10 @@
 {
-  "Target_Name": "venusa_ap_base.h",
+  "Target_Name": ["venusa_ap_base.h"],
+  "Datebase": "~/database",
   "Chip_Name": "VenusA",
   "Core_Name": "N300",
   "Item": {
     "device_name": "$func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', ['Module', 'Sheet name', 'Address Start'])",
-    "irq_name": "$func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'irq', ['irq_num', 'irq source'])"
+    "irq_name": "$func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'irq', ['irq source', 'irq_num'])"
   }
 }
