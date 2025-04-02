@@ -4,7 +4,7 @@
   "Chip_Name": "VenusA",
   "Core_Name": "N300",
   "Item": {
-    "module_name": "$func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', 'Sheet name'))",
+    "module_name": "$func:Extend($func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', 'Sheet name')), $func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'video_wrap_peri', 'Class')))",
     "device_name": "$func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', ['Module', 'Sheet name', 'Address Start'])"
   }
 }

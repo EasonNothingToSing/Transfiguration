@@ -20,7 +20,8 @@ class Transfiguration:
             "Get_Excel_Data": self._get_excel_cols_data,
             "Get_Excel_Data_Col": self._get_excel_cols_data2,
             "Get_Excel_Data_Col_Skip_Row": self._get_excel_cols_data3,
-            "Deduplicate_Modules_Name": self._deduplicate_modules_name
+            "Deduplicate_Modules_Name": self._deduplicate_modules_name,
+            "Extend": self._list_extend
         }
         self._env = Environment(loader=FileSystemLoader([Transfiguration._TEMPLATE_PATH, os.getcwd()]))
 
@@ -89,6 +90,9 @@ class Transfiguration:
     def _get_excel_cols_data(self, excel: str, sheet: str, colname):
         col = []
         try:
+            # TODO: need beast function
+            if colname == "Class":
+                raise SyntaxError('')
             colname = eval(colname)
 
             for name in colname:
@@ -135,4 +139,11 @@ class Transfiguration:
                 return i
             
         return None
+
+    def _list_extend(self, *_list):
+        o_list = []
+
+        for __list in _list:
+            o_list.extend(__list)
+        return o_list
 
