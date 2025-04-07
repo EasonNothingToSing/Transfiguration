@@ -5,6 +5,10 @@
   "Core_Name": "N300",
   "Item": {
     "module_name": "$func:Extend($func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', 'Sheet name')), $func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'video_wrap_peri', 'Class')))",
-    "device_name": "$func:Extend($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', ['Module', 'Sheet name', 'Address Start']), $func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'video_wrap_peri', ['Module', 'Class', 'Address Start']))"
+    "device_name": "$func:Extend($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', ['Module', 'Sheet name', 'Address Start']), $func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'video_wrap_peri', ['Module', 'Class', 'Address Start']))",
+    "cmn_dma_sel0": "$func:String_Filter('CMNDMA', [_str_to_num, _str_brackets], $func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'Dma_hs', ['DMAC Peripherals I/F NO.', 'dma_hs_sel_x=0']))",
+    "cmn_dma_sel1": "$func:String_Filter('CMNDMA', [_str_to_num, _str_brackets], $func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'Dma_hs', ['DMAC Peripherals I/F NO.', 'dma_hs_sel_x=1']))",
+    "gp_dma_sel0": "$func:String_Filter('GPDMA2D', [_str_to_num, _str_brackets], $func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'Dma_hs', ['DMAC Peripherals I/F NO.', 'dma_hs_sel_x=0']))",
+    "gp_dma_sel1": "$func:String_Filter('GPDMA2D', [_str_to_num, _str_brackets], $func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'Dma_hs', ['DMAC Peripherals I/F NO.', 'dma_hs_sel_x=1']))"
   }
 }

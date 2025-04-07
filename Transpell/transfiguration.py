@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas
 import re
 import os
+import ast
 
 from global_env import *
 
@@ -14,14 +15,16 @@ class Transfiguration:
     def __init__(self):
         self._configure = None
         self._target = None
+        self._target_name = None
         self._database = None
-        self._output = None
+        self._template_output = None
         self._available_funcs = {
             "Get_Excel_Data": self._get_excel_cols_data,
             "Get_Excel_Data_Col": self._get_excel_cols_data2,
             "Get_Excel_Data_Col_Skip_Row": self._get_excel_cols_data3,
             "Deduplicate_Modules_Name": self._deduplicate_modules_name,
-            "Extend": self._list_extend
+            "Extend": self._list_extend,
+            "String_Filter": self._str_filter,
         }
         self._env = Environment(loader=FileSystemLoader([Transfiguration._TEMPLATE_PATH, os.getcwd()]))
 
@@ -29,16 +32,21 @@ class Transfiguration:
         self._configure = configure
         with open(self._configure, "r", encoding="utf-8") as f:
             configure_json = json.load(f)
+            # Get the target name and it is a list
             self._target = configure_json['Target_Name']
             self._database_filter(configure_json['Datebase'])
             # preprocess
-            self._output = self._traverse_recursive(configure_json)
+            self._template_output = self._traverse_recursive(configure_json)
 
         for _target in self._target:
-            self._output["Target_Name"] = _target
+            self._template_output["Target_Name"] = _target
+            self._target_name = _target
             t_path = Path(os.path.normpath(os.path.join(os.path.dirname(self._configure), _target))).as_posix()
             template = self._env.get_template(t_path)
-            print(template.render(Input=self._output))
+            return template.render(Input=self._template_output)
+
+    def get_target_name(self):
+        return self._target_name
 
     def _database_filter(self, database : str):
         database_string = ""
@@ -146,4 +154,51 @@ class Transfiguration:
         for __list in _list:
             o_list.extend(__list)
         return o_list
+    
+    def _str_filter(self, _string, func_list, *_list):
+        def _str_to_num(_string):
+            return _string.split('_')[1]
+    
+        def _str_brackets(_string):
+            return re.sub(r'\[(\d+)\]', r'_\1', _string)
+        
+        def find_string_in_list(lst):
+            # 递归函数，检查列表及其嵌套列表是否部分包含 _string
+            result_lists = []
+            
+            # 如果当前对象不是列表，跳过
+            if not isinstance(lst, list):
+                return result_lists
+            
+            # 检查当前列表中的每个元素是否部分包含 _string
+            for item in lst:
+                if isinstance(item, str) and _string in item:
+                    __o_list = []
 
+                    if func_list:
+                        for _num, _item in enumerate(lst):
+                            if func_list[_num] is not None:
+                                __o_list.append(func_list[_num](_item))
+                            else:
+                                __o_list.append(_item)
+
+                        lst = __o_list
+                    result_lists.append(lst)
+                    break  # 找到一个匹配就跳出，避免重复添加
+            
+            # 递归检查每个子列表
+            for item in lst:
+                if isinstance(item, list):
+                    result_lists.extend(find_string_in_list(item))
+            
+            return result_lists
+
+        func_list = eval(func_list)
+        o_list = []  # 用于存储符合条件的列表
+        
+        # 处理传入的每个 _list
+        for sub_list in _list:
+            result = find_string_in_list(sub_list)
+            o_list.extend(result)
+        
+        return o_list
