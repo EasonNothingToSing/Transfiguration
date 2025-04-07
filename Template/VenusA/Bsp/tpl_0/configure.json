@@ -5,6 +5,6 @@
   "Core_Name": "N300",
   "Item": {
     "module_name": "$func:Extend($func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', 'Sheet name')), $func:Deduplicate_Modules_Name($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'video_wrap_peri', 'Class')))",
-    "device_name": "$func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', ['Module', 'Sheet name', 'Address Start'])"
+    "device_name": "$func:Extend($func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'cmn_aon_peri', ['Module', 'Sheet name', 'Address Start']), $func:Get_Excel_Data('VenusA_SoC_Memory_Mapping.xlsx', 'video_wrap_peri', ['Module', 'Class', 'Address Start']))"
   }
 }

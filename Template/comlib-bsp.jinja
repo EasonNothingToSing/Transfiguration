@@ -26,3 +26,11 @@
 {% macro Device_IRQ_Define_Macro(device_name, irq_num) -%}
 #define IRQ_{{device_name | upper}}_VECTOR {{" " * (50 - (device_name | length))}} {{irq_num}}
 {%- endmacro %}
+
+{% macro Device_CMN_DMA_HS_Define_Macro(device_name, sel, hs_num) -%}
+#define CMN_DMA_SELECT{{sel}}_HS_{{device_name | upper}} {{" " * (50 - (device_name | length))}} {{hs_num}}
+{%- endmacro %}
+
+{% macro Device_GP_DMA_HS_Define_Macro(device_name, sel, hs_num) -%}
+#define GP_DMA_SELECT{{sel}}_HS_{{device_name | upper}} {{" " * (50 - (device_name | length))}} {{hs_num}}
+{%- endmacro %}
