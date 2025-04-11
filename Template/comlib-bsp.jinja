@@ -28,9 +28,9 @@
 {%- endmacro %}
 
 {% macro Device_CMN_DMA_HS_Define_Macro(device_name, sel, hs_num) -%}
-#define HAL_CMN_DMA_HSID{{sel}}_{{device_name | upper}} {{" " * (50 - (device_name | length))}} {{hs_num}}
+#define HAL_CMN_DMA_SEL{{sel}}_HSID_{{hs_num}}_{{device_name | upper}} {{" " * (50 - (device_name | length))}} {{hs_num}}
 {%- endmacro %}
 
 {% macro Device_GP_DMA_HS_Define_Macro(device_name, sel, hs_num) -%}
-#define HAL_GP_DMA_HSID{{sel}}_{{device_name | upper}} {{" " * (50 - (device_name | length))}} {{hs_num}}
+#define HAL_GP_DMA_SEL{{sel}}_HSID{{hs_num}}_{{device_name | upper}} {{" " * (50 - (device_name | length))}} {{hs_num}}
 {%- endmacro %}

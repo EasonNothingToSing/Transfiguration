@@ -13,6 +13,7 @@ class Transfiguration:
     _TEMPLATE_PATH = os.path.join(os.getcwd(), "Template")
 
     def __init__(self):
+        self._configure_name = None
         self._configure = None
         self._target = None
         self._target_name = None
@@ -29,9 +30,11 @@ class Transfiguration:
         self._env = Environment(loader=FileSystemLoader([Transfiguration._TEMPLATE_PATH, os.getcwd()]))
 
     def process(self, configure: str):
-        self._configure = configure
-        with open(self._configure, "r", encoding="utf-8") as f:
+        self._configure_name = configure
+        json_out = []
+        with open(self._configure_name, "r", encoding="utf-8") as f:
             configure_json = json.load(f)
+            self._configure = configure_json
             # Get the target name and it is a list
             self._target = configure_json['Target_Name']
             self._database_filter(configure_json['Datebase'])
@@ -41,12 +44,14 @@ class Transfiguration:
         for _target in self._target:
             self._template_output["Target_Name"] = _target
             self._target_name = _target
-            t_path = Path(os.path.normpath(os.path.join(os.path.dirname(self._configure), _target))).as_posix()
+            t_path = Path(os.path.normpath(os.path.join(os.path.dirname(self._configure_name), _target))).as_posix()
             template = self._env.get_template(t_path)
-            return template.render(Input=self._template_output)
+            json_out.append(template.render(Input=self._template_output))
+
+        return json_out
 
     def get_target_name(self):
-        return self._target_name
+        return self._target
 
     def _database_filter(self, database : str):
         database_string = ""
@@ -54,45 +59,67 @@ class Transfiguration:
             self._database = os.path.join(Transfiguration._TEMPLATE_PATH, "database")
 
     def _traverse_recursive(self, config):
+        # Handle dictionaries
         if isinstance(config, dict):
             return {k: self._traverse_recursive(v) for k, v in config.items()}
+        # Handle lists
         if isinstance(config, list):
             return [self._traverse_recursive(i) for i in config]
-        if isinstance(config, str) and config.startswith('$func:'):
-            func_call = config[len('$func:'):]
-            func_name, args_str = re.match(r'(\w+)\((.*)\)', func_call).groups()
+        # Handle strings
+        if isinstance(config, str):
+            # Handle variable references with $var:
+            if config.startswith('$var:'):
+                var_key = config[len('$var:'):]
+                if var_key in self._configure:
+                    # Recursively process the variable value, as it might contain $func: or $var:
+                    return self._traverse_recursive(self._configure[var_key])
+                else:
+                    raise ValueError(f"Variable '{var_key}' not found in JSON variables")
+            # Handle function calls with $func:
+            if config.startswith('$func:'):
+                func_call = config[len('$func:'):]
+                match = re.match(r'(\w+)\((.*)\)', func_call)
+                if not match:
+                    raise ValueError(f"Invalid function call format: {func_call}")
+                func_name, args_str = match.groups()
 
-            args = []
-            current_arg = ''
-            parentheses_count = 0
-            brackets_count = 0
-            for char in args_str:
-                if char == ',' and parentheses_count == 0 and brackets_count == 0:
+                # Parse function arguments
+                args = []
+                current_arg = ''
+                parentheses_count = 0
+                brackets_count = 0
+                for char in args_str:
+                    if char == ',' and parentheses_count == 0 and brackets_count == 0:
+                        args.append(current_arg.strip())
+                        current_arg = ''
+                    else:
+                        current_arg += char
+                        if char == '(':
+                            parentheses_count += 1
+                        elif char == ')':
+                            parentheses_count -= 1
+                        if char == '[':
+                            brackets_count += 1
+                        elif char == ']':
+                            brackets_count -= 1
+                if current_arg:
                     args.append(current_arg.strip())
-                    current_arg = ''
-                else:
-                    current_arg += char
-                    if char == '(':
-                        parentheses_count += 1
-                    elif char == ')':
-                        parentheses_count -= 1
-                    if char == '[':
-                        brackets_count += 1
-                    elif char == ']':
-                        brackets_count -= 1
-            if current_arg:
-                args.append(current_arg.strip())
 
-            processed_args = []
-            for arg in args:
-                arg = arg.strip("'")
-                if arg.startswith('$func:'):
-                    processed_args.append(self._traverse_recursive(arg.strip("'")))
-                else:
-                    processed_args.append(arg)
-            
-            # 调用函数
-            return self._available_funcs[func_name](*processed_args)
+                # Process arguments (recursively handle nested $func: or $var:)
+                processed_args = []
+                for arg in args:
+                    arg = arg.strip("'")
+                    # If the argument starts with $func: or $var:, process it recursively
+                    if arg.startswith('$func:') or arg.startswith('$var:'):
+                        processed_args.append(self._traverse_recursive(arg))
+                    else:
+                        processed_args.append(arg)
+
+                # Check if the function exists and call it
+                if func_name not in self._available_funcs:
+                    raise ValueError(f"Function '{func_name}' not found")
+                return self._available_funcs[func_name](*processed_args)
+        # Return the original value if it's not a string or doesn't start with $func:/$var:
         return config
 
     def _get_excel_cols_data(self, excel: str, sheet: str, colname):

@@ -23,6 +23,8 @@ class Transmake:
         os.makedirs(output_target, exist_ok=True)
         for file in self._json_dir:
             output = self._trans.process(file)
-            file_name = os.path.join(global_env.__TRANSFIGURATION_RUN_PATH__, "out", self._target_name, self._trans.get_target_name())
-            with open(file_name, 'w', encoding='utf-8') as f:
-                f.write(output)
+            file_name = self._trans.get_target_name()
+            for o, n in zip(output, file_name):
+                file_name = os.path.join(global_env.__TRANSFIGURATION_RUN_PATH__, "out", self._target_name, n)
+                with open(file_name, 'w', encoding='utf-8') as f:
+                    f.write(o)

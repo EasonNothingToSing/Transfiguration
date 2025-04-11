@@ -1,0 +1,33 @@
+{
+  "Target_Name": ["ClockManager.h", "ClockManager.c"],
+  "Datebase": "~/database",
+  "Chip_Name": "VenusA",
+  "Core_Name": "N300",
+  "Item": {
+    "Device": {
+      "Uart0": {
+        "gate": "",
+        "gate_def": 0,
+        "clock_src_reg": [],
+        "src_choice": [],
+        "div_n_reg": "",
+        "div_n_def": 1,
+        "div_n_mask": "0x3ff",
+        "div_m_reg": "",
+        "div_m_def": 1,
+        "div_m_mask": "0x3ff",
+        "ld_reg": "",
+        "clock_born": ""
+      }
+    },
+    "Core": {
+
+    },
+    "PLL": {
+
+    },
+    "VOC": {
+
+    }
+  }
+}

@@ -283,47 +283,6 @@ extern volatile IRegion_Info_Type SystemIRegionInfo;
 
 #define NMI_EXPn                (-2)      /* NMI Exception */
 
-// IC_BOARD == 1 ---> ASIC
-// IC_BOARD == 0 ---> FPGA
-
-#if IC_BOARD // ASIC
-
-#define DEF_MAIN_FREQUENCE    (300000000) // 300 MHz
-//#define DEF_MAIN_FREQUENCE    (24000000) // 24 MHz
-
-static inline uint32_t CPUFREQ() {
-    extern uint32_t CRM_GetApFreq();
-    return CRM_GetApFreq();
-}
-
-static inline uint32_t HCLKFREQ() {
-    extern uint32_t CRM_GetApahbFreq();
-    return CRM_GetApahbFreq();
-}
-
-static inline uint32_t PCLKFREQ() {
-    extern uint32_t CRM_GetApperiapbFreq();
-    return CRM_GetApperiapbFreq();
-}
-
-#else // FPGA
-
-#define DEF_MAIN_FREQUENCE    (24000000) // 24MHZ
-
-static inline uint32_t CPUFREQ() {
-    return (DEF_MAIN_FREQUENCE);
-}
-
-static inline uint32_t HCLKFREQ() {
-    return (DEF_MAIN_FREQUENCE);
-}
-
-static inline uint32_t PCLKFREQ() {
-    return (DEF_MAIN_FREQUENCE);
-}
-
-#endif // IC_BOARD
-
 /************************************************************************************
  * GI(Global Interrupt) and IRQ vector inline functions
  ************************************************************************************/
