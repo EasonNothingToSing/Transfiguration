@@ -9,6 +9,7 @@ class ExpressionTransformer(ast.NodeTransformer):
         self._global_namepsace = {
             "ReadExcel": self.ReadExcel,
             "DataExtend": self.DataExtend,
+            "List2Dict": self.List2Dict
         }
         super().__init__()
 
@@ -87,4 +88,23 @@ class ExpressionTransformer(ast.NodeTransformer):
                 row.extend(data[j][i])
             result.append(row)
 
+        return result
+    
+    def List2Dict(self, data: list, keys: list):
+        if not isinstance(data, list):
+            raise TypeError("Data must be a list")
+        
+        if not isinstance(keys, list):
+            raise TypeError("Keys must be a list")
+
+        if len(data) == 0:
+            return []
+        
+        if len(data[0]) != len(keys):
+            raise ValueError(f"Data length mismatch: {len(data[0])} != {len(keys)}")
+        
+        result = []
+        for i in range(len(data)):
+            result.append(dict(zip(keys, data[i])))
+        
         return result
