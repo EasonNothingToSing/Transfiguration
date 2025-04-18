@@ -8,6 +8,7 @@ class ExpressionTransformer(ast.NodeTransformer):
         self._database = database
         self._global_namepsace = {
             "ReadExcel": self.ReadExcel,
+            "DataExtend": self.DataExtend,
         }
         super().__init__()
 
@@ -65,3 +66,25 @@ class ExpressionTransformer(ast.NodeTransformer):
             d = d.dropna()
 
             return d.values.tolist()
+        
+    def DataExtend(self, *data):
+        if len(data) == 0:
+            raise ValueError("No data provided")
+        
+        if len(data) == 1:
+            return data[0]
+        
+        result = []
+
+        t_len = len(data[0])
+        for i in range(1, len(data)):
+            if len(data[i]) != t_len:
+                raise ValueError(f"Data length mismatch: {len(data[i])} != {t_len}")
+            
+        for i in range(t_len):
+            row = []
+            for j in range(len(data)):
+                row.extend(data[j][i])
+            result.append(row)
+
+        return result
