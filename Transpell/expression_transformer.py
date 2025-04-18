@@ -108,3 +108,26 @@ class ExpressionTransformer(ast.NodeTransformer):
             result.append(dict(zip(keys, data[i])))
         
         return result
+    
+    def DeduplicateKey(self, data: list, keys: list):
+        if not isinstance(data, list):
+            raise TypeError("Data must be a list")
+        
+        if len(data) == 0:
+            return []
+        
+        if not isinstance(data[0], dict):
+            raise TypeError("Data must be a list of dictionaries")
+        
+        if not isinstance(keys, list):
+            raise TypeError("Keys must be a list")
+        
+        result = []
+        for i in range(len(data)):
+            for k in range(len(result)):
+                if all(data[i][key] == result[k][key] for key in keys):
+                    break
+            else:
+                result.append(data[i])
+        
+        return result
